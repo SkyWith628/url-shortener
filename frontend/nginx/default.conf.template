@@ -1,0 +1,44 @@
+# nginx 공식 이미지가 시작할 때 ${BACKEND_HOST}, ${BACKEND_PORT} 를 환경변수로 치환한다.
+# 컴포즈: BACKEND_HOST=backend / ECS 단일 태스크: BACKEND_HOST=127.0.0.1
+
+limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+
+server {
+    listen 80;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+    server_tokens off;
+
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options DENY always;
+
+    # 프론트엔드 컨테이너 자체의 헬스체크
+    location = /healthz {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+
+    # 링크 관리 API
+    location /api/ {
+        limit_req zone=api burst=20 nodelay;
+        limit_req_status 429;
+        proxy_pass http://${BACKEND_HOST}:${BACKEND_PORT};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    # 단축 코드(영문·숫자 6자) 접속은 백엔드가 클릭을 기록하고 리다이렉트한다.
+    location ~ "^/[A-Za-z0-9]{6}$" {
+        proxy_pass http://${BACKEND_HOST}:${BACKEND_PORT};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}

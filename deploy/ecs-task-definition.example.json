@@ -1,0 +1,94 @@
+{
+  "family": "url-shortener",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "1024",
+  "memory": "2048",
+  "runtimePlatform": { "cpuArchitecture": "X86_64", "operatingSystemFamily": "LINUX" },
+  "executionRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/<EXECUTION_ROLE>",
+  "containerDefinitions": [
+    {
+      "name": "db",
+      "image": "public.ecr.aws/docker/library/mysql:8.4",
+      "essential": true,
+      "environment": [
+        { "name": "MYSQL_DATABASE", "value": "shortener" },
+        { "name": "MYSQL_USER", "value": "shortener" },
+        { "name": "MYSQL_PASSWORD", "value": "<DB_PASSWORD>" },
+        { "name": "MYSQL_ROOT_PASSWORD", "value": "<DB_ROOT_PASSWORD>" }
+      ],
+      "healthCheck": {
+        "command": ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u$MYSQL_USER -p$MYSQL_PASSWORD --silent"],
+        "interval": 10,
+        "timeout": 5,
+        "retries": 10,
+        "startPeriod": 60
+      },
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/url-shortener",
+          "awslogs-region": "<REGION>",
+          "awslogs-stream-prefix": "db",
+          "awslogs-create-group": "true"
+        }
+      }
+    },
+    {
+      "name": "backend",
+      "image": "<DOCKERHUB_ID>/url-shortener-backend:1.0",
+      "essential": true,
+      "environment": [
+        { "name": "DB_HOST", "value": "127.0.0.1" },
+        { "name": "DB_PORT", "value": "3306" },
+        { "name": "DB_NAME", "value": "shortener" },
+        { "name": "DB_USER", "value": "shortener" },
+        { "name": "DB_PASSWORD", "value": "<DB_PASSWORD>" }
+      ],
+      "dependsOn": [{ "containerName": "db", "condition": "HEALTHY" }],
+      "healthCheck": {
+        "command": ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)\""],
+        "interval": 10,
+        "timeout": 5,
+        "retries": 5,
+        "startPeriod": 30
+      },
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/url-shortener",
+          "awslogs-region": "<REGION>",
+          "awslogs-stream-prefix": "backend",
+          "awslogs-create-group": "true"
+        }
+      }
+    },
+    {
+      "name": "frontend",
+      "image": "<DOCKERHUB_ID>/url-shortener-frontend:1.0",
+      "essential": true,
+      "portMappings": [{ "containerPort": 80, "protocol": "tcp" }],
+      "environment": [
+        { "name": "BACKEND_HOST", "value": "127.0.0.1" },
+        { "name": "BACKEND_PORT", "value": "8000" }
+      ],
+      "dependsOn": [{ "containerName": "backend", "condition": "HEALTHY" }],
+      "healthCheck": {
+        "command": ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/healthz || exit 1"],
+        "interval": 10,
+        "timeout": 5,
+        "retries": 5,
+        "startPeriod": 10
+      },
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/url-shortener",
+          "awslogs-region": "<REGION>",
+          "awslogs-stream-prefix": "frontend",
+          "awslogs-create-group": "true"
+        }
+      }
+    }
+  ]
+}

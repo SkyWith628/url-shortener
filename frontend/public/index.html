@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Snip — URL 단축 서비스</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1>Snip</h1>
+    <p>긴 주소를 짧게 줄이고, 얼마나 클릭됐는지 확인하세요.</p>
+  </header>
+
+  <main>
+    <section class="card" aria-labelledby="create-heading">
+      <h2 id="create-heading">새 링크 만들기</h2>
+      <form id="create-form" novalidate>
+        <label for="url-input">원본 URL</label>
+        <input id="url-input" name="url" type="url" inputmode="url" autocomplete="off"
+               placeholder="https://example.com/아주/긴/주소" maxlength="2048" required>
+        <label for="title-input">메모 <span class="optional">(선택)</span></label>
+        <input id="title-input" name="title" type="text" maxlength="100"
+               placeholder="예: 포트폴리오 링크">
+        <button type="submit" class="primary">단축하기</button>
+        <p id="form-message" class="message" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="list-heading">
+      <div class="list-header">
+        <h2 id="list-heading">내 링크</h2>
+        <span id="summary" class="summary"></span>
+      </div>
+      <p id="list-message" class="message" role="status" aria-live="polite"></p>
+      <ul id="link-list" class="link-list"></ul>
+    </section>
+  </main>
+
+  <dialog id="stats-dialog" aria-labelledby="stats-title">
+    <h2 id="stats-title">클릭 통계</h2>
+    <p id="stats-summary" class="summary"></p>
+    <div id="stats-chart" class="chart" role="img" aria-label="최근 7일 일별 클릭 수"></div>
+    <div class="dialog-actions">
+      <button type="button" data-close>닫기</button>
+    </div>
+  </dialog>
+
+  <dialog id="edit-dialog" aria-labelledby="edit-title">
+    <h2 id="edit-title">링크 수정</h2>
+    <form id="edit-form" novalidate>
+      <label for="edit-url">원본 URL</label>
+      <input id="edit-url" type="url" maxlength="2048" required>
+      <label for="edit-title-input">메모</label>
+      <input id="edit-title-input" type="text" maxlength="100">
+      <p id="edit-message" class="message" role="status" aria-live="polite"></p>
+      <div class="dialog-actions">
+        <button type="button" data-close>취소</button>
+        <button type="submit" class="primary">저장</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
