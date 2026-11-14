@@ -40,4 +40,4 @@ docker run --rm -v "${PWD}:/src:ro" -w /src python:3.12-slim sh -c "pip install 
 
 ## 현재 단계
 - 지금: 2026-11-15 ECS 배포 완료. 클러스터 `induk2024002667-task-cluster`, 태스크 정의 `induk2024002667-task-definition:2`, 배포 URL http://54.79.45.89/ (태스크가 다시 뜨면 IP가 바뀐다). 보고서(https://claude.ai/artifact/GRTvzawobXTq7XAhkQcSzZ)에 배포 내용 반영 완료.
-- 다음: 보고서에 스크린샷과 이름 채움 → PDF + 소스 압축 → 11-15 23:59까지 제출. 채점이 끝나면 태스크 중지와 클러스터 삭제.
+- 다음: 보고서 표지에 이름 입력 → PDF로 내보내 `submission/2024002667_url-shortener_source.zip`에 넣기 → 11-15 23:59까지 8주차 게시판에 제출. 채점이 끝나면 태스크 중지와 클러스터 삭제.
