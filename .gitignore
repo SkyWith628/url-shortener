@@ -8,3 +8,4 @@ node_modules/
 .DS_Store
 deploy/ecs-task-definition.json
 submission/
+docs/*.pdf
