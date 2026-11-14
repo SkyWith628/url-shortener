@@ -1,11 +1,11 @@
 {
-  "family": "url-shortener",
+  "family": "induk2024002667-task-definition",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "1024",
   "memory": "2048",
   "runtimePlatform": { "cpuArchitecture": "X86_64", "operatingSystemFamily": "LINUX" },
-  "executionRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/<EXECUTION_ROLE>",
+  "executionRoleArn": "arn:aws:iam::925107452037:role/ecsTaskExecutionRole",
   "containerDefinitions": [
     {
       "name": "db",
@@ -23,20 +23,11 @@
         "timeout": 5,
         "retries": 10,
         "startPeriod": 60
-      },
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-          "awslogs-group": "/ecs/url-shortener",
-          "awslogs-region": "<REGION>",
-          "awslogs-stream-prefix": "db",
-          "awslogs-create-group": "true"
-        }
       }
     },
     {
       "name": "backend",
-      "image": "<DOCKERHUB_ID>/url-shortener-backend:1.0",
+      "image": "skywith628/url-shortener-backend:1.0",
       "essential": true,
       "environment": [
         { "name": "DB_HOST", "value": "127.0.0.1" },
@@ -52,20 +43,11 @@
         "timeout": 5,
         "retries": 5,
         "startPeriod": 30
-      },
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-          "awslogs-group": "/ecs/url-shortener",
-          "awslogs-region": "<REGION>",
-          "awslogs-stream-prefix": "backend",
-          "awslogs-create-group": "true"
-        }
       }
     },
     {
       "name": "frontend",
-      "image": "<DOCKERHUB_ID>/url-shortener-frontend:1.0",
+      "image": "skywith628/url-shortener-frontend:1.0",
       "essential": true,
       "portMappings": [{ "containerPort": 80, "protocol": "tcp" }],
       "environment": [
@@ -79,15 +61,6 @@
         "timeout": 5,
         "retries": 5,
         "startPeriod": 10
-      },
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-          "awslogs-group": "/ecs/url-shortener",
-          "awslogs-region": "<REGION>",
-          "awslogs-stream-prefix": "frontend",
-          "awslogs-create-group": "true"
-        }
       }
     }
   ]

@@ -34,9 +34,10 @@ docker run --rm -v "${PWD}:/src:ro" -w /src python:3.12-slim sh -c "pip install 
 ## 함정 / 제약
 - Git Bash의 `curl -d`로 한글을 보내면 UTF-8이 아니라서 400이 난다. 파일(`--data-binary @file`)로 보낸다.
 - 로컬에 Python이 없다. 테스트는 컨테이너로 돌린다.
-- 학교 실습 계정(925107452037, induk2024002667)은 2026-11-13 기준 콘솔 로그인과 액세스 키가 모두 거부된다. AWS CLI 기본 프로필에 그 죽은 키가 남아 있으니 개인 계정은 `--profile personal`로 쓴다.
+- 학교 실습 계정(925107452037, induk2024002667, 리전 ap-southeast-2)은 웹 콘솔 로그인만 된다. 제공된 액세스 키와 `aws login`은 거부되므로 배포는 콘솔에서 한다.
+- 실습 계정의 `ecsTaskExecutionRole`에는 `logs:CreateLogGroup` 권한이 없다. 태스크 정의에 `awslogs-create-group`을 넣으면 태스크가 시작 전에 중지된다. 그래서 배포본에는 로그 설정이 없다.
 - ECS는 Dockerfile의 HEALTHCHECK를 읽지 않는다. 태스크 정의의 `healthCheck`가 실제 기준이다.
 
 ## 현재 단계
-- 지금: 이미지 푸시 완료(`skywith628/url-shortener-{backend,frontend}:1.0`), 보고서 초안 작성 완료(https://claude.ai/artifact/GRTvzawobXTq7XAhkQcSzZ). 배포는 계정 문제로 미완료.
-- 다음: 교수님께 계정 문의 메일 발송 → 개인 AWS 계정 `aws login --profile personal` → `deploy/ecs-task-definition.json`의 계정 ID·리전·실행 역할을 개인 계정 값으로 교체 후 배포 → 스크린샷 16곳과 학번·이름·배포 URL을 보고서에 채움 → PDF + 소스 압축 제출.
+- 지금: 2026-11-15 ECS 배포 완료. 클러스터 `induk2024002667-task-cluster`, 태스크 정의 `induk2024002667-task-definition:2`, 배포 URL http://54.79.45.89/ (태스크가 다시 뜨면 IP가 바뀐다). 보고서(https://claude.ai/artifact/GRTvzawobXTq7XAhkQcSzZ)에 배포 내용 반영 완료.
+- 다음: 보고서에 스크린샷과 이름 채움 → PDF + 소스 압축 → 11-15 23:59까지 제출. 채점이 끝나면 태스크 중지와 클러스터 삭제.
